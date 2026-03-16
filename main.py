@@ -145,7 +145,7 @@ POOL_JOKERS = [J_CampeonMult, J_FichasExtra, J_Parejas, J_Venta300, J_Solitario]
 
 pygame.init()
 WIDTH, HEIGHT = 1200, 800
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE | pygame.SCALED)
 pygame.display.set_caption("TCG Space")
 
 icon_path = resource_path(os.path.join("context", "icon.ico"))
@@ -427,6 +427,10 @@ class GameEngine:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
+
+            if event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_F11, pygame.K_f):
+                    pygame.display.toggle_fullscreen()
                 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.state == "PLAYING":
@@ -667,6 +671,9 @@ class GameEngine:
             self.btn_next.text = "EMPEZAR"
             self.btn_next.rect.y = HEIGHT - 150
             self.btn_next.draw(surface)
+            
+            hint = font_small.render("Pulsa F11 o 'F' para alternar Pantalla Completa", True, (150, 150, 150))
+            surface.blit(hint, (WIDTH//2 - hint.get_width()//2, HEIGHT - 30))
             
         elif self.state == "MAP":
             tit = font_large.render("MAPA ESTELAR", True, HIGHLIGHT_COLOR)
