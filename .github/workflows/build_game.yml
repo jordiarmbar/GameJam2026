@@ -1,0 +1,55 @@
+name: Build and Release Game
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Permite ejecutar la compilación manualmente en la pestaña de Actions
+
+jobs:
+  build:
+    name: Build Game for Windows
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11' # Versión estable de Python
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build executable with PyInstaller
+      # Usamos main.py directamente pero pasamos flags manuales en vez de .spec para asegurar máxima compatibilidad de Github.
+      # NOTA: --noconfirm sobrescribe la build vieja y --clean limpia la cache. 
+      run: |
+        pyinstaller --noconfirm --onedir --windowed --icon "context/icon.ico" --name "TCG Space" --add-data "context;context/" "main.py"
+      
+    - name: Zip the build
+      run: |
+        Compress-Archive -Path "dist/TCG Space" -DestinationPath "TCG_Space_Windows.zip"
+
+    # Almacenar como log temporal si queremos solo la descarga cruda
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: TCG_Space_Windows
+        path: TCG_Space_Windows.zip
+
+    - name: Create Release
+      # Usamos el tag de la fecha para crear una versión automática
+      if: startsWith(github.event.head_commit.message, 'release') || github.event_name == 'workflow_dispatch'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.run_id }}
+        name: Release Build ${{ github.run_id }}
+        files: TCG_Space_Windows.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
