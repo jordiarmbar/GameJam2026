@@ -29,4 +29,4 @@ Si quieres clonar este repositorio y ver/modificar el código fuente:
 4. Instala las dependencias: `pip install -r requirements.txt`
 5. Ejecuta el juego base: `python main.py`
 
-*Creado para la Game Jam 2026.*
+*Creado para la Game Jam 2026. Hecho por: Jordi Armengol, Eric López, Axel Martínez, Marc Navarro.*
